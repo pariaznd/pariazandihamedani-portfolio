@@ -226,7 +226,7 @@ export default function Home() {
 
         <a
           className="nav-contact"
-          href="mailto:paria.zandi.h@gmail.com"
+          href="mailto:paria.zandii.h@gmail.com"
         >
           Let&apos;s talk ↗
         </a>
@@ -1611,10 +1611,10 @@ export default function Home() {
 
 
           <a
-            href="mailto:paria.zandi.h@gmail.com"
+            href="mailto:paria.zandii.h@gmail.com"
             className="contact-email"
           >
-            paria.zandi.h@gmail.com
+            paria.zandii.h@gmail.com
 
             <span>
               ↗
