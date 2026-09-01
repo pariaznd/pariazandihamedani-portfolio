@@ -6,7 +6,7 @@ const nextConfig = {
   output: "export",
   trailingSlash: true,
 
-  basePath: isProd ? "/paria-portfolio" : "",
+  basePath: isProd ? "/pariazandihamedani-portfolio" : "",
   assetPrefix: isProd ? "/paria-portfolio/" : "",
 
   images: {

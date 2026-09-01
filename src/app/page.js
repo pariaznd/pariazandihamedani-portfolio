@@ -1,7 +1,7 @@
 export default function Home() {
   const basePath =
     process.env.NODE_ENV === "production"
-      ? "/paria-portfolio"
+      ? "/pariazandihamedani-portfolio"
       : "";
 
   return (
@@ -920,10 +920,10 @@ export default function Home() {
           </h2>
 
           <a
-            href="mailto:paria.zandi.h@gmail.com"
+            href="mailto:paria.zandii.h@gmail.com"
             className="contact-email"
           >
-            paria.zandi.h@gmail.com
+            paria.zandii.h@gmail.com
             <span>↗</span>
           </a>
 
