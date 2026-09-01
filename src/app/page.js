@@ -1,27 +1,228 @@
+"use client";
+
+import { useEffect } from "react";
+
 export default function Home() {
   const basePath =
     process.env.NODE_ENV === "production"
       ? "/pariazandihamedani-portfolio"
       : "";
 
+  useEffect(() => {
+    /* =========================================
+       SCROLL REVEAL
+    ========================================= */
+
+    const revealElements =
+      document.querySelectorAll("[data-reveal]");
+
+    const revealObserver =
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+
+              revealObserver.unobserve(
+                entry.target
+              );
+            }
+          });
+        },
+        {
+          threshold: 0.12,
+        }
+      );
+
+    revealElements.forEach((element) => {
+      revealObserver.observe(element);
+    });
+
+
+    /* =========================================
+       COUNT-UP NUMBERS
+    ========================================= */
+
+    const counters =
+      document.querySelectorAll("[data-count]");
+
+    const counterObserver =
+      new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) {
+              return;
+            }
+
+            const element = entry.target;
+
+            const target =
+              parseFloat(
+                element.dataset.count
+              );
+
+            const decimals =
+              parseInt(
+                element.dataset.decimals || "0",
+                10
+              );
+
+            const duration = 1200;
+
+            const start =
+              performance.now();
+
+            const animate =
+              (time) => {
+                const progress =
+                  Math.min(
+                    (time - start) /
+                      duration,
+                    1
+                  );
+
+                const eased =
+                  1 -
+                  Math.pow(
+                    1 - progress,
+                    3
+                  );
+
+                const value =
+                  target * eased;
+
+                element.textContent =
+                  value.toFixed(decimals);
+
+                if (progress < 1) {
+                  requestAnimationFrame(
+                    animate
+                  );
+                }
+              };
+
+            requestAnimationFrame(
+              animate
+            );
+
+            counterObserver.unobserve(
+              element
+            );
+          });
+        },
+        {
+          threshold: 0.5,
+        }
+      );
+
+    counters.forEach((counter) => {
+      counterObserver.observe(counter);
+    });
+
+
+    /* =========================================
+       CARD SPOTLIGHT
+    ========================================= */
+
+    const cards =
+      document.querySelectorAll(
+        ".interactive-card"
+      );
+
+    const handlers = [];
+
+    cards.forEach((card) => {
+      const handleMove = (event) => {
+        const rect =
+          card.getBoundingClientRect();
+
+        const x =
+          event.clientX -
+          rect.left;
+
+        const y =
+          event.clientY -
+          rect.top;
+
+        card.style.setProperty(
+          "--mouse-x",
+          `${x}px`
+        );
+
+        card.style.setProperty(
+          "--mouse-y",
+          `${y}px`
+        );
+      };
+
+      card.addEventListener(
+        "mousemove",
+        handleMove
+      );
+
+      handlers.push({
+        card,
+        handleMove,
+      });
+    });
+
+    return () => {
+      revealObserver.disconnect();
+      counterObserver.disconnect();
+
+      handlers.forEach(
+        ({ card, handleMove }) => {
+          card.removeEventListener(
+            "mousemove",
+            handleMove
+          );
+        }
+      );
+    };
+  }, []);
+
+
   return (
     <main>
 
-      {/* ================= NAVBAR ================= */}
+      {/* =========================================
+          NAVBAR
+      ========================================= */}
 
       <nav className="navbar">
 
-        <a className="logo" href="#">
+        <a
+          className="logo"
+          href="#"
+        >
           PZ<span>.</span>
         </a>
 
+
         <div className="nav-links">
-          <a href="#about">About</a>
-          <a href="#experience">Experience</a>
-          <a href="#projects">Work</a>
-          <a href="#skills">Skills</a>
-          <a href="#education">Education</a>
+
+          <a href="#about">
+            About
+          </a>
+
+          <a href="#experience">
+            Experience
+          </a>
+
+          <a href="#projects">
+            Work
+          </a>
+
+          <a href="#skills">
+            Skills
+          </a>
+
+          <a href="#education">
+            Education
+          </a>
+
         </div>
+
 
         <a
           className="nav-contact"
@@ -33,13 +234,15 @@ export default function Home() {
       </nav>
 
 
-      {/* ================= HERO ================= */}
+      {/* =========================================
+          HERO
+      ========================================= */}
 
       <section className="hero">
 
         <div className="hero-copy">
 
-          <div className="hero-label-row">
+          <div className="hero-label-row hero-enter hero-enter-1">
 
             <span className="hero-dot"></span>
 
@@ -50,7 +253,7 @@ export default function Home() {
           </div>
 
 
-          <div className="hero-name">
+          <div className="hero-name hero-enter hero-enter-2">
 
             <span className="first-name">
               Paria
@@ -63,7 +266,7 @@ export default function Home() {
           </div>
 
 
-          <div className="hero-role">
+          <div className="hero-role hero-enter hero-enter-3">
 
             <span>
               Machine Learning
@@ -88,22 +291,26 @@ export default function Home() {
           </div>
 
 
-          <p className="hero-intro">
+          <p className="hero-intro hero-enter hero-enter-4">
             I build machine learning and data-driven systems
             across time-series forecasting, medical imaging,
             computer vision, data engineering and AI applications.
           </p>
 
 
-          <div className="hero-actions">
+          <div className="hero-actions hero-enter hero-enter-5">
 
             <a
               href="#projects"
               className="button button-dark"
             >
               Selected work
-              <span>↓</span>
+
+              <span>
+                ↓
+              </span>
             </a>
+
 
             <a
               href={`${basePath}/cv.pdf`}
@@ -111,13 +318,16 @@ export default function Home() {
               download="Paria_Zandihamedani_CV.pdf"
             >
               Download CV
-              <span>↗</span>
+
+              <span>
+                ↗
+              </span>
             </a>
 
           </div>
 
 
-          <div className="hero-links">
+          <div className="hero-links hero-enter hero-enter-6">
 
             <span className="hero-location">
               Trondheim, Norway
@@ -144,13 +354,14 @@ export default function Home() {
         </div>
 
 
-        {/* ================= HERO VISUAL ================= */}
+        {/* HERO IMAGE */}
 
-        <div className="hero-visual">
+        <div className="hero-visual hero-photo-enter">
 
           <div className="visual-watermark">
             PZ
           </div>
+
 
           <div className="photo-shell">
 
@@ -158,28 +369,51 @@ export default function Home() {
               01
             </div>
 
-            <img
-              src={`${basePath}/profile.png`}
-              alt="Paria Zandihamedani"
-            />
+
+            <div className="photo-image-wrapper">
+
+              <img
+                src={`${basePath}/profile.png`}
+                alt="Paria Zandihamedani"
+              />
+
+            </div>
+
 
             <div className="photo-caption">
 
               <div>
-                <span>BASED IN</span>
-                <strong>TRONDHEIM</strong>
+
+                <span>
+                  BASED IN
+                </span>
+
+                <strong>
+                  TRONDHEIM
+                </strong>
+
               </div>
 
+
               <div>
-                <span>FOCUS</span>
-                <strong>ML · AI · DATA</strong>
+
+                <span>
+                  FOCUS
+                </span>
+
+                <strong>
+                  ML · AI · DATA
+                </strong>
+
               </div>
 
             </div>
 
           </div>
 
+
           <div className="decor-line decor-line-one"></div>
+
           <div className="decor-line decor-line-two"></div>
 
         </div>
@@ -187,29 +421,47 @@ export default function Home() {
       </section>
 
 
-      {/* ================= ABOUT ================= */}
+      {/* =========================================
+          ABOUT
+      ========================================= */}
 
       <section
         className="section about-section"
         id="about"
       >
 
-        <div className="section-label">
-          <span>01</span>
-          <p>ABOUT</p>
+        <div
+          className="section-label reveal"
+          data-reveal
+        >
+
+          <span>
+            01
+          </span>
+
+          <p>
+            ABOUT
+          </p>
+
         </div>
 
 
         <div className="about-layout">
 
-          <h2>
+          <h2
+            className="reveal reveal-left"
+            data-reveal
+          >
             Engineering background.
             <br />
             Machine learning focus.
           </h2>
 
 
-          <div className="about-copy">
+          <div
+            className="about-copy reveal reveal-right"
+            data-reveal
+          >
 
             <p>
               I am an MSc student in Electronic Engineering
@@ -231,20 +483,35 @@ export default function Home() {
       </section>
 
 
-      {/* ================= EXPERIENCE ================= */}
+      {/* =========================================
+          EXPERIENCE
+      ========================================= */}
 
       <section
         className="section experience-section"
         id="experience"
       >
 
-        <div className="section-label">
-          <span>02</span>
-          <p>EXPERIENCE</p>
+        <div
+          className="section-label reveal"
+          data-reveal
+        >
+
+          <span>
+            02
+          </span>
+
+          <p>
+            EXPERIENCE
+          </p>
+
         </div>
 
 
-        <div className="section-title-row">
+        <div
+          className="section-title-row reveal"
+          data-reveal
+        >
 
           <h2>
             Professional
@@ -263,15 +530,23 @@ export default function Home() {
         <div className="experience-list">
 
 
-          <article className="experience-item">
+          <article
+            className="experience-item reveal"
+            data-reveal
+            style={{
+              "--reveal-delay": "0ms",
+            }}
+          >
 
             <div className="experience-date">
               2026 — PRESENT
             </div>
 
+
             <div className="experience-marker">
               <span></span>
             </div>
+
 
             <div className="experience-main">
 
@@ -281,7 +556,11 @@ export default function Home() {
 
               <h4>
                 MIA Health
-                <span> · Trondheim, Norway</span>
+
+                <span>
+                  {" "}
+                  · Trondheim, Norway
+                </span>
               </h4>
 
               <p>
@@ -295,15 +574,23 @@ export default function Home() {
           </article>
 
 
-          <article className="experience-item">
+          <article
+            className="experience-item reveal"
+            data-reveal
+            style={{
+              "--reveal-delay": "80ms",
+            }}
+          >
 
             <div className="experience-date">
               2025 — 2026
             </div>
 
+
             <div className="experience-marker">
               <span></span>
             </div>
+
 
             <div className="experience-main">
 
@@ -313,7 +600,11 @@ export default function Home() {
 
               <h4>
                 RAGdoll · IMTEL
-                <span> · Trondheim, Norway</span>
+
+                <span>
+                  {" "}
+                  · Trondheim, Norway
+                </span>
               </h4>
 
               <p>
@@ -328,15 +619,23 @@ export default function Home() {
           </article>
 
 
-          <article className="experience-item">
+          <article
+            className="experience-item reveal"
+            data-reveal
+            style={{
+              "--reveal-delay": "160ms",
+            }}
+          >
 
             <div className="experience-date">
               2021 — 2023
             </div>
 
+
             <div className="experience-marker">
               <span></span>
             </div>
+
 
             <div className="experience-main">
 
@@ -346,7 +645,11 @@ export default function Home() {
 
               <h4>
                 Behin Pardazeshgaran Mad Shahr
-                <span> · Iran</span>
+
+                <span>
+                  {" "}
+                  · Iran
+                </span>
               </h4>
 
               <p>
@@ -361,15 +664,23 @@ export default function Home() {
           </article>
 
 
-          <article className="experience-item">
+          <article
+            className="experience-item reveal"
+            data-reveal
+            style={{
+              "--reveal-delay": "240ms",
+            }}
+          >
 
             <div className="experience-date">
               2020 — 2021
             </div>
 
+
             <div className="experience-marker">
               <span></span>
             </div>
+
 
             <div className="experience-main">
 
@@ -379,7 +690,11 @@ export default function Home() {
 
               <h4>
                 Maha Amvaje Darmangar
-                <span> · Iran</span>
+
+                <span>
+                  {" "}
+                  · Iran
+                </span>
               </h4>
 
               <p>
@@ -391,13 +706,14 @@ export default function Home() {
 
           </article>
 
-
         </div>
 
       </section>
 
 
-      {/* ================= PROJECTS ================= */}
+      {/* =========================================
+          PROJECTS
+      ========================================= */}
 
       <section
         className="projects-section"
@@ -406,13 +722,26 @@ export default function Home() {
 
         <div className="projects-inner">
 
-          <div className="section-label">
-            <span>03</span>
-            <p>SELECTED WORK</p>
+          <div
+            className="section-label reveal"
+            data-reveal
+          >
+
+            <span>
+              03
+            </span>
+
+            <p>
+              SELECTED WORK
+            </p>
+
           </div>
 
 
-          <div className="projects-header">
+          <div
+            className="projects-header reveal"
+            data-reveal
+          >
 
             <h2>
               Projects with
@@ -430,7 +759,13 @@ export default function Home() {
 
           {/* FEATURED PROJECT */}
 
-          <article className="featured-project">
+          <article
+            className="featured-project interactive-card reveal"
+            data-reveal
+          >
+
+            <div className="card-spotlight"></div>
+
 
             <div className="featured-number">
               01
@@ -443,11 +778,13 @@ export default function Home() {
                 MACHINE LEARNING · TIME-SERIES
               </span>
 
+
               <h3>
                 Industrial Raw Material
                 <br />
                 Delivery Forecasting
               </h3>
+
 
               <p>
                 Developed a cumulative forecasting model for
@@ -455,12 +792,27 @@ export default function Home() {
                 baseline combined with LightGBM quantile regression.
               </p>
 
+
               <div className="project-tags">
-                <span>Python</span>
-                <span>LightGBM</span>
-                <span>Time-Series</span>
-                <span>Quantile Regression</span>
+
+                <span>
+                  Python
+                </span>
+
+                <span>
+                  LightGBM
+                </span>
+
+                <span>
+                  Time-Series
+                </span>
+
+                <span>
+                  Quantile Regression
+                </span>
+
               </div>
+
 
               <a
                 href="https://github.com/pariaznd/Time-Series-Forecasting-using-Residual-Learning"
@@ -480,10 +832,22 @@ export default function Home() {
                 VALIDATION IMPROVEMENT
               </span>
 
+
               <strong>
-                35.8
-                <small>%</small>
+
+                <span
+                  data-count="35.8"
+                  data-decimals="1"
+                >
+                  0.0
+                </span>
+
+                <small>
+                  %
+                </small>
+
               </strong>
+
 
               <p>
                 lower P20
@@ -496,22 +860,37 @@ export default function Home() {
           </article>
 
 
-          {/* OTHER PROJECTS */}
+          {/* PROJECT GRID */}
 
           <div className="project-grid">
 
 
-            <article className="project-card">
+            <article
+              className="project-card interactive-card reveal"
+              data-reveal
+            >
+
+              <div className="card-spotlight"></div>
+
 
               <div className="card-top">
-                <span>02</span>
-                <p>DEEP LEARNING · MEDICAL IMAGING</p>
+
+                <span>
+                  02
+                </span>
+
+                <p>
+                  DEEP LEARNING · MEDICAL IMAGING
+                </p>
+
               </div>
+
 
               <h3>
                 Breast Cancer
                 DCE-MRI Classification
               </h3>
+
 
               <p className="card-description">
                 Developed 3D ResNet18 and 2D MIP ResNet50
@@ -519,16 +898,43 @@ export default function Home() {
                 from multi-centre DCE-MRI data.
               </p>
 
+
               <div className="card-result">
-                <strong>0.78</strong>
-                <span>AUROC · 5th of 28 teams</span>
+
+                <strong>
+
+                  <span
+                    data-count="0.78"
+                    data-decimals="2"
+                  >
+                    0.00
+                  </span>
+
+                </strong>
+
+                <span>
+                  AUROC · 5th of 28 teams
+                </span>
+
               </div>
 
+
               <div className="project-tags">
-                <span>PyTorch</span>
-                <span>MONAI</span>
-                <span>ResNet</span>
+
+                <span>
+                  PyTorch
+                </span>
+
+                <span>
+                  MONAI
+                </span>
+
+                <span>
+                  ResNet
+                </span>
+
               </div>
+
 
               <a
                 href="https://github.com/pariaznd/Breast-Cancer-MRI-Classification"
@@ -542,48 +948,97 @@ export default function Home() {
             </article>
 
 
-            <article className="project-card">
+            <article
+              className="project-card interactive-card reveal"
+              data-reveal
+            >
+
+              <div className="card-spotlight"></div>
+
 
               <div className="card-top">
-                <span>03</span>
-                <p>DATA ENGINEERING · SQL</p>
+
+                <span>
+                  03
+                </span>
+
+                <p>
+                  DATA ENGINEERING · SQL
+                </p>
+
               </div>
+
 
               <h3>
                 Porto Taxi
                 Trajectory Analysis
               </h3>
 
+
               <p className="card-description">
                 Built a Python/MySQL pipeline for 1.67 million
                 taxi trips and 83.4 million GPS points.
               </p>
 
+
               <div className="card-result">
-                <strong>8m → 23s</strong>
-                <span>spatial query runtime</span>
+
+                <strong>
+                  8m → 23s
+                </strong>
+
+                <span>
+                  spatial query runtime
+                </span>
+
               </div>
 
+
               <div className="project-tags">
-                <span>Python</span>
-                <span>MySQL</span>
-                <span>SQL</span>
+
+                <span>
+                  Python
+                </span>
+
+                <span>
+                  MySQL
+                </span>
+
+                <span>
+                  SQL
+                </span>
+
               </div>
 
             </article>
 
 
-            <article className="project-card">
+            <article
+              className="project-card interactive-card reveal"
+              data-reveal
+            >
+
+              <div className="card-spotlight"></div>
+
 
               <div className="card-top">
-                <span>04</span>
-                <p>COMPUTER VISION</p>
+
+                <span>
+                  04
+                </span>
+
+                <p>
+                  COMPUTER VISION
+                </p>
+
               </div>
+
 
               <h3>
                 Snow Pole Detection
                 for Winter Roads
               </h3>
+
 
               <p className="card-description">
                 Compared one-class snow-pole detection models
@@ -591,47 +1046,101 @@ export default function Home() {
                 YOLO and RT-DETR.
               </p>
 
+
               <div className="card-result">
-                <strong>RT-DETR</strong>
-                <span>strongest model in experiments</span>
+
+                <strong>
+                  RT-DETR
+                </strong>
+
+                <span>
+                  strongest model in experiments
+                </span>
+
               </div>
 
+
               <div className="project-tags">
-                <span>YOLO</span>
-                <span>RT-DETR</span>
-                <span>SLURM</span>
+
+                <span>
+                  YOLO
+                </span>
+
+                <span>
+                  RT-DETR
+                </span>
+
+                <span>
+                  SLURM
+                </span>
+
               </div>
 
             </article>
 
 
-            <article className="project-card">
+            <article
+              className="project-card interactive-card reveal"
+              data-reveal
+            >
+
+              <div className="card-spotlight"></div>
+
 
               <div className="card-top">
-                <span>05</span>
-                <p>DISTRIBUTED SYSTEMS · IOT</p>
+
+                <span>
+                  05
+                </span>
+
+                <p>
+                  DISTRIBUTED SYSTEMS · IOT
+                </p>
+
               </div>
+
 
               <h3>
                 SkyBite Autonomous
                 Drone Delivery
               </h3>
 
+
               <p className="card-description">
                 Implemented fleet-management logic for drone
                 coordination, mission states and delivery updates.
               </p>
 
+
               <div className="card-result">
-                <strong>Fleet Manager</strong>
-                <span>core coordination component</span>
+
+                <strong>
+                  Fleet Manager
+                </strong>
+
+                <span>
+                  core coordination component
+                </span>
+
               </div>
 
+
               <div className="project-tags">
-                <span>Python</span>
-                <span>MQTT</span>
-                <span>Raspberry Pi</span>
+
+                <span>
+                  Python
+                </span>
+
+                <span>
+                  MQTT
+                </span>
+
+                <span>
+                  Raspberry Pi
+                </span>
+
               </div>
+
 
               <a
                 href="https://github.com/pariaznd/SkyBite-Drone-Delivery"
@@ -645,17 +1154,32 @@ export default function Home() {
             </article>
 
 
-            <article className="project-card project-card-wide">
+            <article
+              className="project-card project-card-wide interactive-card reveal"
+              data-reveal
+            >
+
+              <div className="card-spotlight"></div>
+
 
               <div className="card-top">
-                <span>06</span>
-                <p>DEEP LEARNING · COMPUTER VISION</p>
+
+                <span>
+                  06
+                </span>
+
+                <p>
+                  DEEP LEARNING · COMPUTER VISION
+                </p>
+
               </div>
+
 
               <h3>
                 Neural Jigsaw
                 Image Reconstruction
               </h3>
+
 
               <p className="card-description">
                 Reconstructed 96 × 96 RGB images from nine
@@ -663,17 +1187,40 @@ export default function Home() {
                 U-Net and Transformer architectures.
               </p>
 
+
               <div className="card-result">
-                <strong>3 Models</strong>
-                <span>CNN · U-Net · Transformer</span>
+
+                <strong>
+                  3 Models
+                </strong>
+
+                <span>
+                  CNN · U-Net · Transformer
+                </span>
+
               </div>
 
+
               <div className="project-tags">
-                <span>PyTorch</span>
-                <span>CNN</span>
-                <span>U-Net</span>
-                <span>Transformer</span>
+
+                <span>
+                  PyTorch
+                </span>
+
+                <span>
+                  CNN
+                </span>
+
+                <span>
+                  U-Net
+                </span>
+
+                <span>
+                  Transformer
+                </span>
+
               </div>
+
 
               <a
                 href="https://github.com/pariaznd/neural-jigsaw-image-reconstruction"
@@ -694,22 +1241,37 @@ export default function Home() {
       </section>
 
 
-      {/* ================= SKILLS ================= */}
+      {/* =========================================
+          SKILLS
+      ========================================= */}
 
       <section
         className="section skills-section"
         id="skills"
       >
 
-        <div className="section-label">
-          <span>04</span>
-          <p>TECHNICAL SKILLS</p>
+        <div
+          className="section-label reveal"
+          data-reveal
+        >
+
+          <span>
+            04
+          </span>
+
+          <p>
+            TECHNICAL SKILLS
+          </p>
+
         </div>
 
 
         <div className="skills-layout">
 
-          <div className="skills-heading">
+          <div
+            className="skills-heading reveal reveal-left"
+            data-reveal
+          >
 
             <h2>
               Tools I use to
@@ -722,53 +1284,148 @@ export default function Home() {
 
           <div className="skills-list">
 
-            <div className="skill-row">
-              <span>01</span>
-              <h3>Programming</h3>
-              <p>Python · SQL · C · C++</p>
+
+            <div
+              className="skill-row reveal"
+              data-reveal
+              style={{
+                "--reveal-delay": "0ms",
+              }}
+            >
+
+              <span>
+                01
+              </span>
+
+              <h3>
+                Programming
+              </h3>
+
+              <p>
+                Python · SQL · C · C++
+              </p>
+
             </div>
 
-            <div className="skill-row">
-              <span>02</span>
-              <h3>Machine Learning</h3>
+
+            <div
+              className="skill-row reveal"
+              data-reveal
+              style={{
+                "--reveal-delay": "60ms",
+              }}
+            >
+
+              <span>
+                02
+              </span>
+
+              <h3>
+                Machine Learning
+              </h3>
+
               <p>
                 PyTorch · TensorFlow · scikit-learn ·
                 LightGBM · XGBoost
               </p>
+
             </div>
 
-            <div className="skill-row">
-              <span>03</span>
-              <h3>Generative AI</h3>
+
+            <div
+              className="skill-row reveal"
+              data-reveal
+              style={{
+                "--reveal-delay": "120ms",
+              }}
+            >
+
+              <span>
+                03
+              </span>
+
+              <h3>
+                Generative AI
+              </h3>
+
               <p>
                 RAG · Embeddings · Semantic Retrieval ·
                 FastAPI · LLM Applications
               </p>
+
             </div>
 
-            <div className="skill-row">
-              <span>04</span>
-              <h3>Data Engineering</h3>
+
+            <div
+              className="skill-row reveal"
+              data-reveal
+              style={{
+                "--reveal-delay": "180ms",
+              }}
+            >
+
+              <span>
+                04
+              </span>
+
+              <h3>
+                Data Engineering
+              </h3>
+
               <p>
                 ETL · Data Modeling · MySQL · BigQuery ·
                 ClickHouse · MongoDB
               </p>
+
             </div>
 
-            <div className="skill-row">
-              <span>05</span>
-              <h3>Data Analysis</h3>
+
+            <div
+              className="skill-row reveal"
+              data-reveal
+              style={{
+                "--reveal-delay": "240ms",
+              }}
+            >
+
+              <span>
+                05
+              </span>
+
+              <h3>
+                Data Analysis
+              </h3>
+
               <p>
                 EDA · Statistical Analysis · Power BI ·
                 pandas · NumPy
               </p>
+
             </div>
 
-            <div className="skill-row">
-              <span>06</span>
-              <h3>Tools</h3>
-              <p>Docker · Git · SLURM</p>
+
+            <div
+              className="skill-row reveal"
+              data-reveal
+              style={{
+                "--reveal-delay": "300ms",
+              }}
+            >
+
+              <span>
+                06
+              </span>
+
+              <h3>
+                Tools
+              </h3>
+
+              <p>
+                Docker · Git · SLURM
+              </p>
+
             </div>
+
 
           </div>
 
@@ -777,20 +1434,35 @@ export default function Home() {
       </section>
 
 
-      {/* ================= EDUCATION ================= */}
+      {/* =========================================
+          EDUCATION
+      ========================================= */}
 
       <section
         className="section education-section"
         id="education"
       >
 
-        <div className="section-label">
-          <span>05</span>
-          <p>EDUCATION</p>
+        <div
+          className="section-label reveal"
+          data-reveal
+        >
+
+          <span>
+            05
+          </span>
+
+          <p>
+            EDUCATION
+          </p>
+
         </div>
 
 
-        <div className="section-title-row">
+        <div
+          className="section-title-row reveal"
+          data-reveal
+        >
 
           <h2>
             Academic
@@ -804,11 +1476,15 @@ export default function Home() {
         <div className="education-list">
 
 
-          <article className="education-item">
+          <article
+            className="education-item reveal"
+            data-reveal
+          >
 
             <span className="education-date">
               2025 — PRESENT
             </span>
+
 
             <div>
 
@@ -834,11 +1510,15 @@ export default function Home() {
           </article>
 
 
-          <article className="education-item">
+          <article
+            className="education-item reveal"
+            data-reveal
+          >
 
             <span className="education-date">
               2024 — PRESENT
             </span>
+
 
             <div>
 
@@ -864,11 +1544,15 @@ export default function Home() {
           </article>
 
 
-          <article className="education-item">
+          <article
+            className="education-item reveal"
+            data-reveal
+          >
 
             <span className="education-date">
               2019 — 2024
             </span>
+
 
             <div>
 
@@ -900,7 +1584,9 @@ export default function Home() {
       </section>
 
 
-      {/* ================= CONTACT ================= */}
+      {/* =========================================
+          CONTACT
+      ========================================= */}
 
       <footer
         className="contact-section"
@@ -913,18 +1599,26 @@ export default function Home() {
             06 · CONTACT
           </span>
 
-          <h2>
+
+          <h2
+            className="reveal"
+            data-reveal
+          >
             Have a project,
             <br />
             opportunity or idea?
           </h2>
 
+
           <a
-            href="mailto:paria.zandii.h@gmail.com"
+            href="mailto:paria.zandi.h@gmail.com"
             className="contact-email"
           >
-            paria.zandii.h@gmail.com
-            <span>↗</span>
+            paria.zandi.h@gmail.com
+
+            <span>
+              ↗
+            </span>
           </a>
 
 
@@ -933,6 +1627,7 @@ export default function Home() {
             <p>
               Paria Zandihamedani
             </p>
+
 
             <div>
 
@@ -944,6 +1639,7 @@ export default function Home() {
                 GitHub
               </a>
 
+
               <a
                 href="https://www.linkedin.com/in/paria-zandi/"
                 target="_blank"
@@ -953,6 +1649,7 @@ export default function Home() {
               </a>
 
             </div>
+
 
             <p>
               Trondheim · Norway
