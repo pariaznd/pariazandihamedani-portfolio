@@ -1,8 +1,13 @@
 /** @type {import('next').NextConfig} */
 
+const isProd = process.env.NODE_ENV === "production";
+
 const nextConfig = {
   output: "export",
   trailingSlash: true,
+
+  basePath: isProd ? "/paria-portfolio" : "",
+  assetPrefix: isProd ? "/paria-portfolio/" : "",
 
   images: {
     unoptimized: true,

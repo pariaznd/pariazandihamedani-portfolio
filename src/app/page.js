@@ -1,4 +1,9 @@
 export default function Home() {
+  const basePath =
+    process.env.NODE_ENV === "production"
+      ? "/paria-portfolio"
+      : "";
+
   return (
     <main>
 
@@ -54,12 +59,15 @@ export default function Home() {
 
           <div className="buttons">
 
-            <a href="#projects" className="btn primary">
+            <a
+              href="#projects"
+              className="btn primary"
+            >
               Explore my work
             </a>
 
             <a
-              href="/cv.pdf"
+              href={`${basePath}/cv.pdf`}
               className="btn secondary"
               download="Paria_Zandihamedani_CV.pdf"
             >
@@ -101,7 +109,7 @@ export default function Home() {
           <div className="photo-card">
 
             <img
-              src="/profile.png"
+              src={`${basePath}/profile.png`}
               alt="Paria Zandihamedani"
             />
 
@@ -308,6 +316,8 @@ export default function Home() {
 
         <div className="projects">
 
+          {/* PROJECT 1 */}
+
           <article className="project-card">
 
             <div className="project-top">
@@ -368,6 +378,8 @@ export default function Home() {
 
           </article>
 
+
+          {/* PROJECT 2 */}
 
           <article className="project-card">
 
@@ -430,6 +442,8 @@ export default function Home() {
           </article>
 
 
+          {/* PROJECT 3 */}
+
           <article className="project-card">
 
             <div className="project-top">
@@ -481,6 +495,8 @@ export default function Home() {
           </article>
 
 
+          {/* PROJECT 4 */}
+
           <article className="project-card">
 
             <div className="project-top">
@@ -531,6 +547,8 @@ export default function Home() {
 
           </article>
 
+
+          {/* PROJECT 5 */}
 
           <article className="project-card">
 
@@ -592,6 +610,8 @@ export default function Home() {
 
           </article>
 
+
+          {/* PROJECT 6 */}
 
           <article className="project-card">
 
@@ -681,7 +701,9 @@ export default function Home() {
 
           <div className="skill-group">
             <h3>Programming</h3>
-            <p>Python, SQL, C, C++</p>
+            <p>
+              Python, SQL, C, C++
+            </p>
           </div>
 
 
@@ -858,7 +880,7 @@ export default function Home() {
       >
 
         <p>
-          LET'S CONNECT
+          LET&apos;S CONNECT
         </p>
 
         <h2>
