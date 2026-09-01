@@ -6,8 +6,13 @@ const nextConfig = {
   output: "export",
   trailingSlash: true,
 
-  basePath: isProd ? "/pariazandihamedani-portfolio" : "",
-  assetPrefix: isProd ? "/paria-portfolio/" : "",
+  basePath: isProd
+    ? "/pariazandihamedani-portfolio"
+    : "",
+
+  assetPrefix: isProd
+    ? "/pariazandihamedani-portfolio/"
+    : "",
 
   images: {
     unoptimized: true,
