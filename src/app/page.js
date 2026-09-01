@@ -887,8 +887,8 @@ export default function Home() {
           Interested in working together?
         </h2>
 
-        <a href="mailto:paria.zandi.h@gmail.com">
-          paria.zandi.h@gmail.com
+        <a href="mailto:paria.zandii.h@gmail.com">
+          paria.zandii.h@gmail.com
         </a>
 
       </section>
