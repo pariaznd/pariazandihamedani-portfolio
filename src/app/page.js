@@ -11,7 +11,7 @@ import {
   education,
   contact,
 } from "./data";
-import { JigsawPortrait, CopyEmail, NavMenu } from "./client";
+import { JigsawPortrait, CopyEmail, NavMenu, LiveFrame } from "./client";
 import {
   HydroFigure,
   OdeliaFigure,
@@ -70,7 +70,7 @@ function Figure({ project }) {
   const Diagram = diagrams[project.figure];
   return (
     <figure className="figure">
-      <div className={project.image ? "fig-frame fig-frame-photo" : "fig-frame"}>
+      <LiveFrame className={project.image ? "fig-frame fig-frame-photo" : "fig-frame"}>
         {project.image ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -84,7 +84,7 @@ function Figure({ project }) {
         ) : (
           <Diagram />
         )}
-      </div>
+      </LiveFrame>
       {project.caption && (
         <figcaption className="fig-caption">{project.caption}</figcaption>
       )}

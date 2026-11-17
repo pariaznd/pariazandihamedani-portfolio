@@ -1134,3 +1134,411 @@ mark {
     transition: none;
   }
 }
+
+/* ------------------------------------------------ Diagram motion
+   Everything below only runs when the diagram is on screen
+   (data-live="true", set by LiveFrame) and only for people who have not
+   asked for reduced motion. Without it the diagrams are simply still. */
+
+/* things that only exist while moving stay hidden otherwise */
+.hydro-dot,
+.porto-car,
+.od-a,
+.od-b,
+.od-c,
+.sb-in,
+.sb-out,
+.snow-scan {
+  opacity: 0;
+}
+
+.snow-scan {
+  fill: var(--reflector);
+  fill-opacity: 0.22;
+}
+
+.fig .pop,
+.fig [class*="od-"],
+.fig .sb-core,
+.fig .porto-before,
+.fig .porto-after {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.fig .porto-before,
+.fig .porto-after {
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* ---- Hydro: the loss draws itself, a forecast slides along it */
+  [data-live="true"] .hydro-line {
+    stroke-dasharray: 1;
+    animation: draw 1.1s ease-out both;
+  }
+
+  [data-live="true"] .hydro-area {
+    animation: appear 0.6s ease-out 0.7s both;
+  }
+
+  [data-live="true"] .hydro-dot {
+    offset-rotate: 0deg;
+    animation: slide 4.5s ease-in-out 1.2s infinite alternate,
+      appear 0.3s ease 1.2s both;
+  }
+
+  [data-live="true"] .pop {
+    animation: pop 0.5s cubic-bezier(0.2, 1.2, 0.4, 1) var(--d, 0s) both;
+  }
+
+  /* ---- ODELIA: data flows through both models into the average */
+  [data-live="true"] .od-a,
+  [data-live="true"] .od-b,
+  [data-live="true"] .od-c {
+    offset-rotate: 0deg;
+    animation-duration: 4s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+
+  [data-live="true"] .od-a {
+    animation-name: od-a;
+  }
+
+  [data-live="true"] .od-b {
+    animation-name: od-b;
+  }
+
+  [data-live="true"] .od-c {
+    animation-name: od-c;
+  }
+
+  [data-live="true"] .od-model {
+    animation: od-model 4s ease-in-out infinite;
+  }
+
+  [data-live="true"] .od-avg {
+    animation: od-avg 4s ease-in-out infinite;
+  }
+
+  /* ---- Porto: traces draw, a taxi drives, the query race plays */
+  [data-live="true"] .porto-trace,
+  [data-live="true"] .porto-main {
+    stroke-dasharray: 1;
+    animation: draw 1.6s ease-out var(--d, 0s) both;
+  }
+
+  [data-live="true"] .porto-main {
+    animation-delay: 0.9s;
+    animation-duration: 1.4s;
+  }
+
+  [data-live="true"] .porto-car {
+    offset-rotate: 0deg;
+    animation: drive 4.5s linear 2.3s infinite, appear 0.2s ease 2.3s both;
+  }
+
+  [data-live="true"] .porto-before {
+    animation: grow 3.4s linear 0.4s both;
+  }
+
+  [data-live="true"] .porto-after {
+    animation: grow 0.22s ease-out 0.4s both;
+  }
+
+  [data-live="true"] .porto-l-before {
+    animation: appear 0.3s ease 3.8s both;
+  }
+
+  [data-live="true"] .porto-l-after {
+    animation: appear 0.3s ease 0.65s both;
+  }
+
+  /* ---- Snow poles: a scanner sweeps across, boxes light up */
+  [data-live="true"] .snow-scan {
+    animation: sweep 5s linear infinite;
+  }
+
+  [data-live="true"] .snow-box {
+    animation: box-ping 5s ease-out var(--d, 0s) infinite;
+  }
+
+  /* ---- SkyBite: messages in, a decision, messages out */
+  [data-live="true"] .sb-in,
+  [data-live="true"] .sb-out {
+    offset-rotate: 0deg;
+    animation-duration: 5s;
+    animation-delay: var(--d, 0s);
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+  }
+
+  [data-live="true"] .sb-in {
+    animation-name: sb-in;
+  }
+
+  [data-live="true"] .sb-out {
+    animation-name: sb-out;
+  }
+
+  [data-live="true"] .sb-core {
+    animation: sb-core 5s ease-in-out 0.9s infinite;
+  }
+
+  /* ---- A thin yellow bar under the header shows how far you have scrolled */
+  @supports (animation-timeline: scroll()) {
+    .site-header::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 3px;
+      background: var(--reflector);
+      transform-origin: left center;
+      transform: scaleX(0);
+      animation: progress linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes slide {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes drive {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  94% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(376px);
+    opacity: 0;
+  }
+}
+
+@keyframes box-ping {
+  0% {
+    stroke: var(--fjord);
+    stroke-width: 2.5;
+    fill: transparent;
+  }
+  4%,
+  14% {
+    stroke: var(--ink);
+    stroke-width: 4;
+    fill: rgb(255 198 26 / 0.4);
+  }
+  30%,
+  100% {
+    stroke: var(--fjord);
+    stroke-width: 2.5;
+    fill: transparent;
+  }
+}
+
+@keyframes od-a {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  17% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+  20%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes od-b {
+  0%,
+  30% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  33% {
+    opacity: 1;
+  }
+  52% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+  55%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes od-c {
+  0%,
+  72% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  75% {
+    opacity: 1;
+  }
+  90% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+  93%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes od-model {
+  0%,
+  14% {
+    transform: scale(1);
+  }
+  22% {
+    transform: scale(1.045);
+  }
+  32%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes od-avg {
+  0%,
+  52% {
+    transform: scale(1);
+  }
+  62% {
+    transform: scale(1.06);
+  }
+  72%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes sb-in {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  3% {
+    opacity: 1;
+  }
+  18% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+  21%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes sb-out {
+  0%,
+  42% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  45% {
+    opacity: 1;
+  }
+  60% {
+    offset-distance: 100%;
+    opacity: 1;
+  }
+  63%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes sb-core {
+  0%,
+  22% {
+    transform: scale(1);
+  }
+  30% {
+    transform: scale(1.04);
+  }
+  40%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes progress {
+  to {
+    transform: scaleX(1);
+  }
+}

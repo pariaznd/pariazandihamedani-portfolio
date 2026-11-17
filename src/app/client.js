@@ -81,6 +81,34 @@ export function JigsawPortrait({ photo, alt }) {
 }
 
 /* ---------------------------------------------------------------
+   Frame around a project diagram. It tells the CSS when the diagram
+   is on screen, so its animation starts when you scroll to it
+   (and plays again if you scroll away and back).
+--------------------------------------------------------------- */
+
+export function LiveFrame({ className, children }) {
+  const ref = useRef(null);
+  const [live, setLive] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setLive(entry.isIntersecting),
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className={className} data-live={live}>
+      {children}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------
    Copy the email address.
 --------------------------------------------------------------- */
 
