@@ -1,0 +1,11 @@
+Delete these old files from your repo (the new site no longer uses them):
+src/app/page.module.css
+public/profile.png
+public/file.svg
+public/globe.svg
+public/next.svg
+public/vercel.svg
+public/window.svg
+.github/deploy.yml      (unused: GitHub only reads .github/workflows/)
+
+Keep: public/cv.pdf  -> replace it with your corrected CV (same file name).

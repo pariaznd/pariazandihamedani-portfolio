@@ -1,1666 +1,350 @@
-"use client";
+import {
+  assetBase,
+  profile,
+  workIntro,
+  featured,
+  moreTitle,
+  more,
+  experience,
+  skills,
+  about,
+  education,
+  contact,
+} from "./data";
+import { JigsawPortrait, CopyEmail, NavMenu } from "./client";
+import {
+  HydroFigure,
+  OdeliaFigure,
+  PortoFigure,
+  SnowFigure,
+  SkybiteFigure,
+} from "./figures";
 
-import { useEffect } from "react";
+const diagrams = {
+  hydro: HydroFigure,
+  odelia: OdeliaFigure,
+  porto: PortoFigure,
+  snow: SnowFigure,
+  skybite: SkybiteFigure,
+};
+
+const navLinks = [
+  { href: "#work", label: "Work" },
+  { href: "#experience", label: "Experience" },
+  { href: "#skills", label: "Skills" },
+  { href: "#about", label: "About" },
+];
+
+const cvHref = `${assetBase}/cv.pdf`;
+const cvName = "Paria_Zandihamedani_CV.pdf";
+
+// Text wrapped in **double stars** becomes a yellow highlight.
+function Marked({ text }) {
+  return text
+    .split(/(\*\*[^*]+\*\*)/g)
+    .map((part, i) =>
+      part.startsWith("**") ? <mark key={i}>{part.slice(2, -2)}</mark> : part
+    );
+}
+
+function Tags({ items }) {
+  return (
+    <ul className="tags" aria-label="Tools and topics">
+      {items.map((tag) => (
+        <li key={tag}>{tag}</li>
+      ))}
+    </ul>
+  );
+}
+
+function External({ href, children }) {
+  return (
+    <a className="link" href={href} target="_blank" rel="noopener noreferrer">
+      {children}
+      <span className="sr-only"> (opens in a new tab)</span>
+    </a>
+  );
+}
+
+function Figure({ project }) {
+  const Diagram = diagrams[project.figure];
+  return (
+    <figure className="figure">
+      <div className={project.image ? "fig-frame fig-frame-photo" : "fig-frame"}>
+        {project.image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`${assetBase}${project.image.src}`}
+            alt={project.image.alt}
+            width={project.image.width}
+            height={project.image.height}
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <Diagram />
+        )}
+      </div>
+      {project.caption && (
+        <figcaption className="fig-caption">{project.caption}</figcaption>
+      )}
+    </figure>
+  );
+}
+
+function Plate({ project, compact = false }) {
+  return (
+    <article
+      className={compact ? "plate plate-compact" : "plate"}
+      aria-labelledby={`${project.id}-title`}
+    >
+      <Figure project={project} />
+      <div className="plate-body">
+        <h3 id={`${project.id}-title`}>{project.title}</h3>
+        {project.context && <p className="plate-context">{project.context}</p>}
+
+        {project.summary ? (
+          <p className="plate-summary">
+            <Marked text={project.summary} />
+          </p>
+        ) : (
+          <dl className="case">
+            <div>
+              <dt>The task</dt>
+              <dd>{project.task}</dd>
+            </div>
+            <div>
+              <dt>What I built</dt>
+              <dd>{project.built}</dd>
+            </div>
+            {project.result && (
+              <div>
+                <dt>Result</dt>
+                <dd>
+                  <Marked text={project.result} />
+                </dd>
+              </div>
+            )}
+          </dl>
+        )}
+
+        <Tags items={project.tags} />
+        {project.link && (
+          <External href={project.link}>View the code on GitHub</External>
+        )}
+      </div>
+    </article>
+  );
+}
 
 export default function Home() {
-  const basePath =
-    process.env.NODE_ENV === "production"
-      ? "/pariazandihamedani-portfolio"
-      : "";
-
-  useEffect(() => {
-    /* =========================================
-       SCROLL REVEAL
-    ========================================= */
-
-    const revealElements =
-      document.querySelectorAll("[data-reveal]");
-
-    const revealObserver =
-      new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add("is-visible");
-
-              revealObserver.unobserve(
-                entry.target
-              );
-            }
-          });
-        },
-        {
-          threshold: 0.12,
-        }
-      );
-
-    revealElements.forEach((element) => {
-      revealObserver.observe(element);
-    });
-
-
-    /* =========================================
-       COUNT-UP NUMBERS
-    ========================================= */
-
-    const counters =
-      document.querySelectorAll("[data-count]");
-
-    const counterObserver =
-      new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (!entry.isIntersecting) {
-              return;
-            }
-
-            const element = entry.target;
-
-            const target =
-              parseFloat(
-                element.dataset.count
-              );
-
-            const decimals =
-              parseInt(
-                element.dataset.decimals || "0",
-                10
-              );
-
-            const duration = 1200;
-
-            const start =
-              performance.now();
-
-            const animate =
-              (time) => {
-                const progress =
-                  Math.min(
-                    (time - start) /
-                      duration,
-                    1
-                  );
-
-                const eased =
-                  1 -
-                  Math.pow(
-                    1 - progress,
-                    3
-                  );
-
-                const value =
-                  target * eased;
-
-                element.textContent =
-                  value.toFixed(decimals);
-
-                if (progress < 1) {
-                  requestAnimationFrame(
-                    animate
-                  );
-                }
-              };
-
-            requestAnimationFrame(
-              animate
-            );
-
-            counterObserver.unobserve(
-              element
-            );
-          });
-        },
-        {
-          threshold: 0.5,
-        }
-      );
-
-    counters.forEach((counter) => {
-      counterObserver.observe(counter);
-    });
-
-
-    /* =========================================
-       CARD SPOTLIGHT
-    ========================================= */
-
-    const cards =
-      document.querySelectorAll(
-        ".interactive-card"
-      );
-
-    const handlers = [];
-
-    cards.forEach((card) => {
-      const handleMove = (event) => {
-        const rect =
-          card.getBoundingClientRect();
-
-        const x =
-          event.clientX -
-          rect.left;
-
-        const y =
-          event.clientY -
-          rect.top;
-
-        card.style.setProperty(
-          "--mouse-x",
-          `${x}px`
-        );
-
-        card.style.setProperty(
-          "--mouse-y",
-          `${y}px`
-        );
-      };
-
-      card.addEventListener(
-        "mousemove",
-        handleMove
-      );
-
-      handlers.push({
-        card,
-        handleMove,
-      });
-    });
-
-    return () => {
-      revealObserver.disconnect();
-      counterObserver.disconnect();
-
-      handlers.forEach(
-        ({ card, handleMove }) => {
-          card.removeEventListener(
-            "mousemove",
-            handleMove
-          );
-        }
-      );
-    };
-  }, []);
-
-
   return (
-    <main>
+    <>
+      <a className="skip" href="#main">
+        Skip to content
+      </a>
 
-      {/* =========================================
-          NAVBAR
-      ========================================= */}
-
-      <nav className="navbar">
-
-        <a
-          className="logo"
-          href="#"
-        >
-          PZ<span>.</span>
-        </a>
-
-
-        <div className="nav-links">
-
-          <a href="#about">
-            About
+      <header className="site-header" id="top">
+        <div className="nav">
+          <a className="brand" href="#top">
+            {profile.name}
           </a>
-
-          <a href="#experience">
-            Experience
-          </a>
-
-          <a href="#projects">
-            Work
-          </a>
-
-          <a href="#skills">
-            Skills
-          </a>
-
-          <a href="#education">
-            Education
-          </a>
-
-        </div>
-
-
-        <a
-          className="nav-contact"
-          href="mailto:paria.zandii.h@gmail.com"
-        >
-          Let&apos;s talk ↗
-        </a>
-
-      </nav>
-
-
-      {/* =========================================
-          HERO
-      ========================================= */}
-
-      <section className="hero">
-
-        <div className="hero-copy">
-
-          <div className="hero-label-row hero-enter hero-enter-1">
-
-            <span className="hero-dot"></span>
-
-            <p>
-              MACHINE LEARNING · AI · DATA
-            </p>
-
-          </div>
-
-
-          <div className="hero-name hero-enter hero-enter-2">
-
-            <span className="first-name">
-              Paria
-            </span>
-
-            <h1>
-              Zandihamedani
-            </h1>
-
-          </div>
-
-
-          <div className="hero-role hero-enter hero-enter-3">
-
-            <span>
-              Machine Learning
-            </span>
-
-            <span className="role-divider">
-              /
-            </span>
-
-            <span>
-              AI Engineering
-            </span>
-
-            <span className="role-divider">
-              /
-            </span>
-
-            <span>
-              Data Science
-            </span>
-
-          </div>
-
-
-          <p className="hero-intro hero-enter hero-enter-4">
-            I build machine learning and data-driven systems
-            across time-series forecasting, medical imaging,
-            computer vision, data engineering and AI applications.
-          </p>
-
-
-          <div className="hero-actions hero-enter hero-enter-5">
-
-            <a
-              href="#projects"
-              className="button button-dark"
-            >
-              Selected work
-
-              <span>
-                ↓
-              </span>
-            </a>
-
-
-            <a
-              href={`${basePath}/cv.pdf`}
-              className="button button-light"
-              download="Paria_Zandihamedani_CV.pdf"
-            >
-              Download CV
-
-              <span>
-                ↗
-              </span>
-            </a>
-
-          </div>
-
-
-          <div className="hero-links hero-enter hero-enter-6">
-
-            <span className="hero-location">
-              Trondheim, Norway
-            </span>
-
-            <a
-              href="https://github.com/pariaznd"
-              target="_blank"
-              rel="noreferrer"
-            >
-              GitHub ↗
-            </a>
-
-            <a
-              href="https://www.linkedin.com/in/paria-zandi/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              LinkedIn ↗
-            </a>
-
-          </div>
-
-        </div>
-
-
-        {/* HERO IMAGE */}
-
-        <div className="hero-visual hero-photo-enter">
-
-          <div className="visual-watermark">
-            PZ
-          </div>
-
-
-          <div className="photo-shell">
-
-            <div className="photo-index">
-              01
-            </div>
-
-
-            <div className="photo-image-wrapper">
-
-              <img
-                src={`${basePath}/profile.png`}
-                alt="Paria Zandihamedani"
-              />
-
-            </div>
-
-
-            <div className="photo-caption">
-
-              <div>
-
-                <span>
-                  BASED IN
-                </span>
-
-                <strong>
-                  TRONDHEIM
-                </strong>
-
-              </div>
-
-
-              <div>
-
-                <span>
-                  FOCUS
-                </span>
-
-                <strong>
-                  ML · AI · DATA
-                </strong>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div className="decor-line decor-line-one"></div>
-
-          <div className="decor-line decor-line-two"></div>
-
-        </div>
-
-      </section>
-
-
-      {/* =========================================
-          ABOUT
-      ========================================= */}
-
-      <section
-        className="section about-section"
-        id="about"
-      >
-
-        <div
-          className="section-label reveal"
-          data-reveal
-        >
-
-          <span>
-            01
-          </span>
-
-          <p>
-            ABOUT
-          </p>
-
-        </div>
-
-
-        <div className="about-layout">
-
-          <h2
-            className="reveal reveal-left"
-            data-reveal
-          >
-            Engineering background.
-            <br />
-            Machine learning focus.
-          </h2>
-
-
-          <div
-            className="about-copy reveal reveal-right"
-            data-reveal
-          >
-
-            <p>
-              I am an MSc student in Electronic Engineering
-              working at the intersection of machine learning,
-              data and AI.
-            </p>
-
-            <p>
-              My work ranges from industrial forecasting and
-              medical imaging to large-scale trajectory data,
-              computer vision, RAG systems and distributed
-              applications.
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      {/* =========================================
-          EXPERIENCE
-      ========================================= */}
-
-      <section
-        className="section experience-section"
-        id="experience"
-      >
-
-        <div
-          className="section-label reveal"
-          data-reveal
-        >
-
-          <span>
-            02
-          </span>
-
-          <p>
-            EXPERIENCE
-          </p>
-
-        </div>
-
-
-        <div
-          className="section-title-row reveal"
-          data-reveal
-        >
-
-          <h2>
-            Professional
-            <br />
-            Experience
-          </h2>
-
-          <p>
-            Selected roles across machine learning,
-            data and engineering.
-          </p>
-
-        </div>
-
-
-        <div className="experience-list">
-
-
-          <article
-            className="experience-item reveal"
-            data-reveal
-            style={{
-              "--reveal-delay": "0ms",
-            }}
-          >
-
-            <div className="experience-date">
-              2026 — PRESENT
-            </div>
-
-
-            <div className="experience-marker">
-              <span></span>
-            </div>
-
-
-            <div className="experience-main">
-
-              <h3>
-                Machine Learning Thesis Intern
-              </h3>
-
-              <h4>
-                MIA Health
-
-                <span>
-                  {" "}
-                  · Trondheim, Norway
-                </span>
-              </h4>
-
-              <p>
-                Working on personalized modeling and prediction
-                from longitudinal health data, including individual
-                baselines, trajectory analysis and future-state prediction.
-              </p>
-
-            </div>
-
-          </article>
-
-
-          <article
-            className="experience-item reveal"
-            data-reveal
-            style={{
-              "--reveal-delay": "80ms",
-            }}
-          >
-
-            <div className="experience-date">
-              2025 — 2026
-            </div>
-
-
-            <div className="experience-marker">
-              <span></span>
-            </div>
-
-
-            <div className="experience-main">
-
-              <h3>
-                AI Developer
-              </h3>
-
-              <h4>
-                RAGdoll · IMTEL
-
-                <span>
-                  {" "}
-                  · Trondheim, Norway
-                </span>
-              </h4>
-
-              <p>
-                Worked in an 8-member Scrum team on an
-                educational assistant using retrieval-augmented
-                generation, embeddings, FastAPI, Git and iterative
-                client feedback.
-              </p>
-
-            </div>
-
-          </article>
-
-
-          <article
-            className="experience-item reveal"
-            data-reveal
-            style={{
-              "--reveal-delay": "160ms",
-            }}
-          >
-
-            <div className="experience-date">
-              2021 — 2023
-            </div>
-
-
-            <div className="experience-marker">
-              <span></span>
-            </div>
-
-
-            <div className="experience-main">
-
-              <h3>
-                Data Engineer
-              </h3>
-
-              <h4>
-                Behin Pardazeshgaran Mad Shahr
-
-                <span>
-                  {" "}
-                  · Iran
-                </span>
-              </h4>
-
-              <p>
-                Managed and validated patient data across hospital
-                systems and worked with Python, SQL, ClickHouse and
-                BigQuery for healthcare data processing and
-                operational reporting.
-              </p>
-
-            </div>
-
-          </article>
-
-
-          <article
-            className="experience-item reveal"
-            data-reveal
-            style={{
-              "--reveal-delay": "240ms",
-            }}
-          >
-
-            <div className="experience-date">
-              2020 — 2021
-            </div>
-
-
-            <div className="experience-marker">
-              <span></span>
-            </div>
-
-
-            <div className="experience-main">
-
-              <h3>
-                Electronics Specialist Intern
-              </h3>
-
-              <h4>
-                Maha Amvaje Darmangar
-
-                <span>
-                  {" "}
-                  · Iran
-                </span>
-              </h4>
-
-              <p>
-                Worked on PCB design, AVR firmware development,
-                hardware debugging and system-level testing.
-              </p>
-
-            </div>
-
-          </article>
-
-        </div>
-
-      </section>
-
-
-      {/* =========================================
-          PROJECTS
-      ========================================= */}
-
-      <section
-        className="projects-section"
-        id="projects"
-      >
-
-        <div className="projects-inner">
-
-          <div
-            className="section-label reveal"
-            data-reveal
-          >
-
-            <span>
-              03
-            </span>
-
-            <p>
-              SELECTED WORK
-            </p>
-
-          </div>
-
-
-          <div
-            className="projects-header reveal"
-            data-reveal
-          >
-
-            <h2>
-              Projects with
-              <br />
-              measurable impact.
-            </h2>
-
-            <p>
-              A selection of work across ML, deep learning,
-              data engineering, computer vision and distributed systems.
-            </p>
-
-          </div>
-
-
-          {/* FEATURED PROJECT */}
-
-          <article
-            className="featured-project interactive-card reveal"
-            data-reveal
-          >
-
-            <div className="card-spotlight"></div>
-
-
-            <div className="featured-number">
-              01
-            </div>
-
-
-            <div className="featured-copy">
-
-              <span className="project-category">
-                MACHINE LEARNING · TIME-SERIES
-              </span>
-
-
-              <h3>
-                Industrial Raw Material
-                <br />
-                Delivery Forecasting
-              </h3>
-
-
-              <p>
-                Developed a cumulative forecasting model for
-                Hydro ASA using a 90-day historical delivery
-                baseline combined with LightGBM quantile regression.
-              </p>
-
-
-              <div className="project-tags">
-
-                <span>
-                  Python
-                </span>
-
-                <span>
-                  LightGBM
-                </span>
-
-                <span>
-                  Time-Series
-                </span>
-
-                <span>
-                  Quantile Regression
-                </span>
-
-              </div>
-
-
-              <a
-                href="https://github.com/pariaznd/Time-Series-Forecasting-using-Residual-Learning"
-                target="_blank"
-                rel="noreferrer"
-                className="project-link"
-              >
-                View GitHub repository ↗
+          <nav className="nav-links" aria-label="Main">
+            {navLinks.map((link) => (
+              <a key={link.href} href={link.href}>
+                {link.label}
               </a>
+            ))}
+          </nav>
+          <a className="btn btn-primary btn-sm nav-cv" href={cvHref} download={cvName}>
+            Download CV
+          </a>
+          <NavMenu links={navLinks} cv={cvHref} />
+        </div>
+      </header>
 
+      <main id="main">
+        {/* ------------------------------------------------ Hero */}
+        <section className="hero" aria-labelledby="hero-title">
+          <div className="wrap hero-grid">
+            <div className="hero-copy">
+              <h1 id="hero-title">{profile.headline}</h1>
+              <p className="hero-intro">{profile.intro}</p>
+
+              <div className="hero-actions">
+                <a className="btn btn-dark" href="#work">
+                  See selected work
+                </a>
+                <a className="btn btn-primary" href={cvHref} download={cvName}>
+                  Download CV
+                </a>
+              </div>
+
+              <p className="status">
+                <span className="status-dot" aria-hidden="true" />
+                {profile.status}
+              </p>
+
+              <ul className="hero-links">
+                <li>
+                  <a className="link" href={`mailto:${profile.email}`}>
+                    {profile.email}
+                  </a>
+                </li>
+                <li>
+                  <External href={profile.github}>GitHub</External>
+                </li>
+                <li>
+                  <External href={profile.linkedin}>LinkedIn</External>
+                </li>
+              </ul>
             </div>
 
-
-            <div className="featured-result">
-
-              <span>
-                VALIDATION IMPROVEMENT
-              </span>
-
-
-              <strong>
-
-                <span
-                  data-count="35.8"
-                  data-decimals="1"
-                >
-                  0.0
-                </span>
-
-                <small>
-                  %
-                </small>
-
-              </strong>
-
-
-              <p>
-                lower P20
-                <br />
-                quantile loss
-              </p>
-
-            </div>
-
-          </article>
-
-
-          {/* PROJECT GRID */}
-
-          <div className="project-grid">
-
-
-            <article
-              className="project-card interactive-card reveal"
-              data-reveal
-            >
-
-              <div className="card-spotlight"></div>
-
-
-              <div className="card-top">
-
-                <span>
-                  02
-                </span>
-
-                <p>
-                  DEEP LEARNING · MEDICAL IMAGING
-                </p>
-
-              </div>
-
-
-              <h3>
-                Breast Cancer
-                DCE-MRI Classification
-              </h3>
-
-
-              <p className="card-description">
-                Developed 3D ResNet18 and 2D MIP ResNet50
-                pipelines for breast cancer classification
-                from multi-centre DCE-MRI data.
-              </p>
-
-
-              <div className="card-result">
-
-                <strong>
-
-                  <span
-                    data-count="0.78"
-                    data-decimals="2"
-                  >
-                    0.00
-                  </span>
-
-                </strong>
-
-                <span>
-                  AUROC · 5th of 28 teams
-                </span>
-
-              </div>
-
-
-              <div className="project-tags">
-
-                <span>
-                  PyTorch
-                </span>
-
-                <span>
-                  MONAI
-                </span>
-
-                <span>
-                  ResNet
-                </span>
-
-              </div>
-
-
-              <a
-                href="https://github.com/pariaznd/Breast-Cancer-MRI-Classification"
-                target="_blank"
-                rel="noreferrer"
-                className="project-link"
-              >
-                View project ↗
-              </a>
-
-            </article>
-
-
-            <article
-              className="project-card interactive-card reveal"
-              data-reveal
-            >
-
-              <div className="card-spotlight"></div>
-
-
-              <div className="card-top">
-
-                <span>
-                  03
-                </span>
-
-                <p>
-                  DATA ENGINEERING · SQL
-                </p>
-
-              </div>
-
-
-              <h3>
-                Porto Taxi
-                Trajectory Analysis
-              </h3>
-
-
-              <p className="card-description">
-                Built a Python/MySQL pipeline for 1.67 million
-                taxi trips and 83.4 million GPS points.
-              </p>
-
-
-              <div className="card-result">
-
-                <strong>
-                  8m → 23s
-                </strong>
-
-                <span>
-                  spatial query runtime
-                </span>
-
-              </div>
-
-
-              <div className="project-tags">
-
-                <span>
-                  Python
-                </span>
-
-                <span>
-                  MySQL
-                </span>
-
-                <span>
-                  SQL
-                </span>
-
-              </div>
-
-            </article>
-
-
-            <article
-              className="project-card interactive-card reveal"
-              data-reveal
-            >
-
-              <div className="card-spotlight"></div>
-
-
-              <div className="card-top">
-
-                <span>
-                  04
-                </span>
-
-                <p>
-                  COMPUTER VISION
-                </p>
-
-              </div>
-
-
-              <h3>
-                Snow Pole Detection
-                for Winter Roads
-              </h3>
-
-
-              <p className="card-description">
-                Compared one-class snow-pole detection models
-                for winter road scenes in Trøndelag using
-                YOLO and RT-DETR.
-              </p>
-
-
-              <div className="card-result">
-
-                <strong>
-                  RT-DETR
-                </strong>
-
-                <span>
-                  strongest model in experiments
-                </span>
-
-              </div>
-
-
-              <div className="project-tags">
-
-                <span>
-                  YOLO
-                </span>
-
-                <span>
-                  RT-DETR
-                </span>
-
-                <span>
-                  SLURM
-                </span>
-
-              </div>
-
-            </article>
-
-
-            <article
-              className="project-card interactive-card reveal"
-              data-reveal
-            >
-
-              <div className="card-spotlight"></div>
-
-
-              <div className="card-top">
-
-                <span>
-                  05
-                </span>
-
-                <p>
-                  DISTRIBUTED SYSTEMS · IOT
-                </p>
-
-              </div>
-
-
-              <h3>
-                SkyBite Autonomous
-                Drone Delivery
-              </h3>
-
-
-              <p className="card-description">
-                Implemented fleet-management logic for drone
-                coordination, mission states and delivery updates.
-              </p>
-
-
-              <div className="card-result">
-
-                <strong>
-                  Fleet Manager
-                </strong>
-
-                <span>
-                  core coordination component
-                </span>
-
-              </div>
-
-
-              <div className="project-tags">
-
-                <span>
-                  Python
-                </span>
-
-                <span>
-                  MQTT
-                </span>
-
-                <span>
-                  Raspberry Pi
-                </span>
-
-              </div>
-
-
-              <a
-                href="https://github.com/pariaznd/SkyBite-Drone-Delivery"
-                target="_blank"
-                rel="noreferrer"
-                className="project-link"
-              >
-                View project ↗
-              </a>
-
-            </article>
-
-
-            <article
-              className="project-card project-card-wide interactive-card reveal"
-              data-reveal
-            >
-
-              <div className="card-spotlight"></div>
-
-
-              <div className="card-top">
-
-                <span>
-                  06
-                </span>
-
-                <p>
-                  DEEP LEARNING · COMPUTER VISION
-                </p>
-
-              </div>
-
-
-              <h3>
-                Neural Jigsaw
-                Image Reconstruction
-              </h3>
-
-
-              <p className="card-description">
-                Reconstructed 96 × 96 RGB images from nine
-                shuffled image patches and compared CNN,
-                U-Net and Transformer architectures.
-              </p>
-
-
-              <div className="card-result">
-
-                <strong>
-                  3 Models
-                </strong>
-
-                <span>
-                  CNN · U-Net · Transformer
-                </span>
-
-              </div>
-
-
-              <div className="project-tags">
-
-                <span>
-                  PyTorch
-                </span>
-
-                <span>
-                  CNN
-                </span>
-
-                <span>
-                  U-Net
-                </span>
-
-                <span>
-                  Transformer
-                </span>
-
-              </div>
-
-
-              <a
-                href="https://github.com/pariaznd/neural-jigsaw-image-reconstruction"
-                target="_blank"
-                rel="noreferrer"
-                className="project-link"
-              >
-                View project ↗
-              </a>
-
-            </article>
-
-
+            <JigsawPortrait
+              photo={`${assetBase}/profile.webp`}
+              alt={`Portrait of ${profile.name}`}
+            />
           </div>
+        </section>
 
-        </div>
+        {/* ------------------------------------------------ Work */}
+        <section className="section" id="work" aria-labelledby="work-title">
+          <div className="wrap">
+            <div className="section-head">
+              <h2 id="work-title">Selected work</h2>
+              <p>{workIntro}</p>
+            </div>
 
-      </section>
+            {featured.map((project) => (
+              <Plate key={project.id} project={project} />
+            ))}
 
-
-      {/* =========================================
-          SKILLS
-      ========================================= */}
-
-      <section
-        className="section skills-section"
-        id="skills"
-      >
-
-        <div
-          className="section-label reveal"
-          data-reveal
-        >
-
-          <span>
-            04
-          </span>
-
-          <p>
-            TECHNICAL SKILLS
-          </p>
-
-        </div>
-
-
-        <div className="skills-layout">
-
-          <div
-            className="skills-heading reveal reveal-left"
-            data-reveal
-          >
-
-            <h2>
-              Tools I use to
-              <br />
-              build things.
-            </h2>
-
+            <h3 className="more-title">{moreTitle}</h3>
+            {more.map((project) => (
+              <Plate key={project.id} project={project} compact />
+            ))}
           </div>
+        </section>
 
-
-          <div className="skills-list">
-
-
-            <div
-              className="skill-row reveal"
-              data-reveal
-              style={{
-                "--reveal-delay": "0ms",
-              }}
-            >
-
-              <span>
-                01
-              </span>
-
-              <h3>
-                Programming
-              </h3>
-
-              <p>
-                Python · SQL · C · C++
-              </p>
-
-            </div>
-
-
-            <div
-              className="skill-row reveal"
-              data-reveal
-              style={{
-                "--reveal-delay": "60ms",
-              }}
-            >
-
-              <span>
-                02
-              </span>
-
-              <h3>
-                Machine Learning
-              </h3>
-
-              <p>
-                PyTorch · TensorFlow · scikit-learn ·
-                LightGBM · XGBoost
-              </p>
-
-            </div>
-
-
-            <div
-              className="skill-row reveal"
-              data-reveal
-              style={{
-                "--reveal-delay": "120ms",
-              }}
-            >
-
-              <span>
-                03
-              </span>
-
-              <h3>
-                Generative AI
-              </h3>
-
-              <p>
-                RAG · Embeddings · Semantic Retrieval ·
-                FastAPI · LLM Applications
-              </p>
-
-            </div>
-
-
-            <div
-              className="skill-row reveal"
-              data-reveal
-              style={{
-                "--reveal-delay": "180ms",
-              }}
-            >
-
-              <span>
-                04
-              </span>
-
-              <h3>
-                Data Engineering
-              </h3>
-
-              <p>
-                ETL · Data Modeling · MySQL · BigQuery ·
-                ClickHouse · MongoDB
-              </p>
-
-            </div>
-
-
-            <div
-              className="skill-row reveal"
-              data-reveal
-              style={{
-                "--reveal-delay": "240ms",
-              }}
-            >
-
-              <span>
-                05
-              </span>
-
-              <h3>
-                Data Analysis
-              </h3>
-
-              <p>
-                EDA · Statistical Analysis · Power BI ·
-                pandas · NumPy
-              </p>
-
-            </div>
-
-
-            <div
-              className="skill-row reveal"
-              data-reveal
-              style={{
-                "--reveal-delay": "300ms",
-              }}
-            >
-
-              <span>
-                06
-              </span>
-
-              <h3>
-                Tools
-              </h3>
-
-              <p>
-                Docker · Git · SLURM
-              </p>
-
-            </div>
-
-
+        {/* ------------------------------------------------ Experience */}
+        <section
+          className="section band"
+          id="experience"
+          aria-labelledby="experience-title"
+        >
+          <div className="wrap">
+            <h2 id="experience-title">Experience</h2>
+            <ol className="road">
+              {experience.map((job) => (
+                <li key={`${job.role}-${job.dates}`}>
+                  <p className="road-dates">{job.dates}</p>
+                  <div className="road-body">
+                    <h3>{job.role}</h3>
+                    <p className="road-org">
+                      {job.org}, {job.place}
+                    </p>
+                    <p className="road-text">{job.text}</p>
+                    <Tags items={job.tags} />
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
+        </section>
 
-        </div>
+        {/* ------------------------------------------------ Skills */}
+        <section className="section" id="skills" aria-labelledby="skills-title">
+          <div className="wrap">
+            <h2 id="skills-title">Skills</h2>
+            <div className="skills-grid">
+              {skills.map((group) => (
+                <div key={group.group}>
+                  <h3>{group.group}</h3>
+                  <ul>
+                    {group.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
 
-      </section>
-
-
-      {/* =========================================
-          EDUCATION
-      ========================================= */}
-
-      <section
-        className="section education-section"
-        id="education"
-      >
-
-        <div
-          className="section-label reveal"
-          data-reveal
+        {/* ------------------------------------------------ About and education */}
+        <section
+          className="section about"
+          id="about"
+          aria-labelledby="about-title"
         >
-
-          <span>
-            05
-          </span>
-
-          <p>
-            EDUCATION
-          </p>
-
-        </div>
-
-
-        <div
-          className="section-title-row reveal"
-          data-reveal
-        >
-
-          <h2>
-            Academic
-            <br />
-            Background
-          </h2>
-
-        </div>
-
-
-        <div className="education-list">
-
-
-          <article
-            className="education-item reveal"
-            data-reveal
-          >
-
-            <span className="education-date">
-              2025 — PRESENT
-            </span>
-
+          <div className="wrap about-grid">
+            <div>
+              <h2 id="about-title">About</h2>
+              <div className="about-copy">
+                {about.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+            </div>
 
             <div>
-
-              <h3>
-                MSc in Electronic Engineering
-              </h3>
-
-              <h4>
-                Norwegian University of Science and Technology
-              </h4>
-
-              <p>
-                Exchange Student · Trondheim, Norway
-              </p>
-
-              <small>
-                MSc Thesis — Personalized Health Modeling
-                and AI Agent Support
-              </small>
-
+              <h2 id="education-title">Education</h2>
+              <ol className="edu" aria-labelledby="education-title">
+                {education.map((item) => (
+                  <li key={`${item.school}-${item.degree}`}>
+                    <p className="edu-dates">{item.dates}</p>
+                    <h3>{item.degree}</h3>
+                    <p className="edu-school">
+                      {item.school}, {item.place}
+                    </p>
+                    <p className="edu-note">{item.note}</p>
+                  </li>
+                ))}
+              </ol>
             </div>
-
-          </article>
-
-
-          <article
-            className="education-item reveal"
-            data-reveal
-          >
-
-            <span className="education-date">
-              2024 — PRESENT
-            </span>
-
-
-            <div>
-
-              <h3>
-                MSc in Electronic Engineering
-              </h3>
-
-              <h4>
-                University of Bologna
-              </h4>
-
-              <p>
-                Bologna, Italy
-              </p>
-
-              <small>
-                Electronics for Intelligent Systems,
-                Big Data and Internet of Things
-              </small>
-
-            </div>
-
-          </article>
-
-
-          <article
-            className="education-item reveal"
-            data-reveal
-          >
-
-            <span className="education-date">
-              2019 — 2024
-            </span>
-
-
-            <div>
-
-              <h3>
-                BSc in Electrical Engineering
-              </h3>
-
-              <h4>
-                Hamedan University of Technology
-              </h4>
-
-              <p>
-                Iran
-              </p>
-
-              <small>
-                Bachelor&apos;s Thesis — Comparative Study
-                of Classical and Deep Learning-Based
-                Medical Image Fusion Methods
-              </small>
-
-            </div>
-
-          </article>
-
-
-        </div>
-
-      </section>
-
-
-      {/* =========================================
-          CONTACT
-      ========================================= */}
-
-      <footer
-        className="contact-section"
-        id="contact"
-      >
-
-        <div className="contact-inner">
-
-          <span className="contact-label">
-            06 · CONTACT
-          </span>
-
-
-          <h2
-            className="reveal"
-            data-reveal
-          >
-            Have a project,
-            <br />
-            opportunity or idea?
-          </h2>
-
-
-          <a
-            href="mailto:paria.zandii.h@gmail.com"
-            className="contact-email"
-          >
-            paria.zandii.h@gmail.com
-
-            <span>
-              ↗
-            </span>
-          </a>
-
-
-          <div className="contact-bottom">
-
-            <p>
-              Paria Zandihamedani
-            </p>
-
-
-            <div>
-
-              <a
-                href="https://github.com/pariaznd"
-                target="_blank"
-                rel="noreferrer"
-              >
-                GitHub
-              </a>
-
-
-              <a
-                href="https://www.linkedin.com/in/paria-zandi/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                LinkedIn
-              </a>
-
-            </div>
-
-
-            <p>
-              Trondheim · Norway
-            </p>
-
           </div>
+        </section>
 
+        {/* ------------------------------------------------ Contact */}
+        <section className="contact" id="contact" aria-labelledby="contact-title">
+          <div className="wrap">
+            <h2 id="contact-title">{contact.title}</h2>
+            <p className="contact-lead">{contact.lead}</p>
+
+            <div className="contact-actions">
+              <a className="btn btn-primary" href={`mailto:${profile.email}`}>
+                Email me
+              </a>
+              <a className="btn btn-ghost" href={cvHref} download={cvName}>
+                Download CV
+              </a>
+            </div>
+
+            <p className="contact-email">
+              <a className="link" href={`mailto:${profile.email}`}>
+                {profile.email}
+              </a>
+              <CopyEmail email={profile.email} />
+            </p>
+
+            <ul className="contact-links">
+              <li>
+                <External href={profile.linkedin}>LinkedIn</External>
+              </li>
+              <li>
+                <External href={profile.github}>GitHub</External>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </main>
+
+      <footer className="site-footer">
+        <div className="wrap site-footer-inner">
+          <p>{profile.name}</p>
+          <p>Trondheim, Norway</p>
         </div>
-
       </footer>
-
-    </main>
+    </>
   );
 }
